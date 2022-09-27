@@ -54,6 +54,7 @@ import Development.IDE.Core.RuleTypes
 import Development.IDE.Core.Rules ( runAction, IdeState )
 import Development.IDE.Core.Shake
     ( useWithStale_,
+      useNoFile_,
       use_,
       uses_ )
 import Development.IDE.GHC.Util
@@ -85,7 +86,7 @@ import Development.IDE.Core.RuleTypes
     ( ModSummaryResult(msrModSummary),
       GetModSummary(GetModSummary),
       GhcSessionDeps(GhcSessionDeps),
-      GetDependencyInformation(GetDependencyInformation),
+      GetModuleGraph(GetModuleGraph),
       GetLinkable(GetLinkable) )
 import Development.IDE.Core.Shake ( VFSModified(VFSUnmodified) )
 import Development.IDE.Types.HscEnvEq ( HscEnvEq(hscEnv) )
@@ -254,7 +255,7 @@ initialiseSessionForEval needs_quickcheck st nfp = do
     ms <- msrModSummary <$> use_ GetModSummary nfp
     deps_hsc <- hscEnv <$> use_ GhcSessionDeps nfp
 
-    linkables_needed <- reachableModules <$> use_ GetDependencyInformation nfp
+    linkables_needed <- reachableModules <$> useNoFile_ GetModuleGraph
     linkables <- uses_ GetLinkable linkables_needed
     -- We unset the global rdr env in mi_globals when we generate interfaces
     -- See Note [Clearing mi_globals after generating an iface]
